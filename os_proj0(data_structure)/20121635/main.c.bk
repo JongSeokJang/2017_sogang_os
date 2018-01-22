@@ -1,0 +1,316 @@
+#include "bitmap.h"
+#include "hash.h"
+#include "list.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_INPUT_SIZE	1024
+#define TRUE			1
+typedef struct _LIST_DATA{
+	int val;
+	struct list_elem elem;
+}LIST_DATA;
+
+typedef struct _LIST_ROOT{
+	char	name[32+1];
+	struct _LIST_ROOT	*next;
+	struct list			*list_data;
+}LIST_ROOT;
+
+typedef struct {
+	char	name[32+1];
+	struct hash hashMaster;
+}HASH_ROOT;
+
+
+int MakeTokenTable(char* inputCmd, char*** tokenTable);
+int SystemPrompt(LIST_ROOT **listRoot, HASH_ROOT **hashRoot);
+LIST_ROOT* FindListName(LIST_ROOT **listRoot, char *listName);
+void TrimAll(char* input, char* output);
+
+int main(void){
+
+	LIST_ROOT *listRoot = NULL;
+	HASH_ROOT *hashRoot = NULL;
+	// 	
+
+	while(TRUE) {
+		SystemPrompt(&listRoot, &hashRoot);
+	}
+
+	return 0;
+
+}
+
+int SystemPrompt(LIST_ROOT **listRoot, HASH_ROOT **hashRoot)
+{
+	LIST_DATA *lptr	=	NULL;
+	LIST_ROOT *list_temp	= NULL;
+	LIST_ROOT *list_ptr		= NULL;
+	LIST_ROOT *list_head	= NULL;
+	char	inputCmd[MAX_INPUT_SIZE];
+	char	**tokenArray	= NULL;
+	char	*token			= NULL;
+	int		pCnt	= 0;
+	int		ii		= 0 ;
+
+	memset(inputCmd,	0x00, sizeof(inputCmd)	);
+
+	fgets(inputCmd, sizeof(inputCmd), stdin);	
+	
+	if(inputCmd[0] == '\n' || inputCmd[0] == '\0')
+		return -1;
+	
+	inputCmd[ strlen(inputCmd) -1 ]  = '\0';
+
+	// make token to token Array
+	pCnt = MakeTokenTable(inputCmd, &tokenArray);	
+	
+	if( !strcmp(tokenArray[0], "create") ){
+
+		if( !strcmp(tokenArray[1], "list") ){
+			
+			list_temp = (LIST_ROOT*)malloc(sizeof(LIST_ROOT) * 1);
+			strcpy( list_temp->name, tokenArray[2] );
+			list_temp->next = NULL;
+
+			/* initialize each head */
+			list_temp->list_data = (struct list*)malloc(sizeof(struct list));
+			list_init(list_temp->list_data);
+			//
+
+			if( (*listRoot) == NULL ){
+				printf("listRoot is NULL\n");
+				(*listRoot) = list_temp;	
+			}
+			else{
+				for(list_ptr = (*listRoot); list_ptr->next ; list_ptr = list_ptr->next);
+				list_ptr->next = list_temp;
+			}
+				
+			printf("1.create list\n");
+
+		}
+		else if( !strcmp(tokenArray[1], "hashtable") ){
+
+			printf("2.create hashtable\n");
+	
+		}
+		else if( !strcmp(tokenArray[1], "bitmap") ){
+
+			printf("3.create bitmap\n");
+		}
+		else{
+			printf("4. %s\n", inputCmd);
+		}
+
+	}
+	else if( !strcmp(tokenArray[0], "quit") ){
+		printf("token size : [%d]\n", (int)strlen(token));
+		printf("5.%s\n", inputCmd);
+
+	}
+	else if( !strcmp(tokenArray[0], "dumpdata") ){
+		
+	}
+	else{
+		printf("6.[tokenArrray[0]:%s ,%s\n", tokenArray[0], inputCmd);
+		
+		if ( !strcmp(tokenArray[0], "list_insert") ){
+			list_head = FindListName( listRoot, tokenArray[1] );
+			printf("%s\n", list_head->name);
+		}
+		else if( !strcmp(tokenArray[0], "list_splice") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_push_front") ){
+
+			LIST_DATA *temp = (LIST_DATA*)malloc( sizeof(LIST_DATA) );			
+			temp->val = atoi(tokenArray[2]);
+
+			list_head = FindListName( listRoot, tokenArray[1] );
+			list_push_front(list_head->list_data, &(temp->elem));
+
+		}
+		else if( !strcmp(tokenArray[0], "list_push_back") ){
+
+			LIST_DATA *temp = (LIST_DATA*)malloc( sizeof(LIST_DATA) );			
+			temp->val = atoi(tokenArray[2]);
+
+			list_head = FindListName( listRoot, tokenArray[1] );
+			list_push_back(list_head->list_data, &(temp->elem));
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_remove") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_pop_front") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_pop_back") ){
+				
+		}
+		else if( !strcmp(tokenArray[0], "list_front") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_back") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_size") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_empty") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_reverse") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_sort") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_insert_ordered") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_unique") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_max") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "list_min") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_insert") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_replace") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_find") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_delete") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_clear") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_size") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_empty") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "hash_apply") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_size") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_set") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_mark") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_reset") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_flip") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_test") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_set_all") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_set_multiple") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_count") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_contains") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_any") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_none") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_all") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_scan") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_scan_and_flip") ){
+	
+		}
+		else if( !strcmp(tokenArray[0], "bitmap_dump") ){
+	
+		}
+		else{
+
+		}
+
+	}
+
+	return 1;
+
+}
+void TrimAll(char* input, char* output)
+{
+	int ii =0, jj = 0;
+	
+	for( ii = 0; ii < strlen(input); ii++ ){
+		if( input[ii] == ' ' || input[ii] == '\t'  )	
+			continue;
+		output[jj++] = input[ii];
+	}
+	output[jj] = '\0';
+}
+int MakeTokenTable(char* inputCmd, char*** tokenTable)
+{
+	char	tempCmd[MAX_INPUT_SIZE];
+	char	*temp	= NULL;
+	int		ii		= 0;
+	int		pCnt	= 0;
+
+	memset(tempCmd,		0x00,	sizeof(tempCmd) );
+
+	for( ii = 0; ii < (int)strlen(inputCmd) ; ii++ ){
+		if( inputCmd[ii] != ' ' && 
+				( inputCmd[ii+1] == ' ' || inputCmd[ii+1] == '\0' ) )
+			pCnt++;	
+	}
+	
+	*tokenTable = (char**)malloc(sizeof(char*) * pCnt);	
+	strcpy(tempCmd, inputCmd);
+	
+	for( temp = strtok(tempCmd, " "), ii = 0; temp != NULL; temp = strtok(NULL, " ") ){
+		(*tokenTable)[ii] = (char*)malloc(sizeof(char) * ( strlen(temp) + 1 ) );
+		strcpy((*tokenTable)[ii++], temp);
+	}
+
+	return pCnt;
+}
+	
+LIST_ROOT* FindListName(LIST_ROOT **listRoot, char *listName)
+{
+	LIST_ROOT *list_ptr = NULL;
+
+	printf("In FindListName, %s, %s\n", (*listRoot)->name, listName);
+
+	for( list_ptr = (*listRoot); list_ptr; list_ptr = list_ptr->next ){
+		printf("[%s], [%s]\n", list_ptr->name, listName);
+		if( !strcmp( list_ptr->name, listName ) ){
+			return list_ptr;
+		}
+	}
+	return NULL;
+}
+
